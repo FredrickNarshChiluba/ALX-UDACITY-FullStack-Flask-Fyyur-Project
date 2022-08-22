@@ -17,6 +17,7 @@ from forms import *
 from flask_migrate import Migrate
 import sys
 from datetime import datetime
+from markupsafe import Markup
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
