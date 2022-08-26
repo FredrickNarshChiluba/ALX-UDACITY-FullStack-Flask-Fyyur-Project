@@ -445,6 +445,13 @@ def show_artist(artist_id):
     # shows the artist page with the given artist_id
     # TODO: replace with real artist data from the artist table, using artist_id
     artist_result = Artist.query.filter(Artist.id == artist_id).first()
+    artist_past_shows=db.session.query(Show).join(Artist).filter(Show.artist_id==artist_id).filter(Show.start_time<datetime.now()).all()
+    # print('pastshows:::::::')
+    # print(artist_past_shows)
+    artist_upcoming_shows=db.session.query(Show).join(Artist).filter(Show.artist_id==artist_id).filter(Show.start_time>datetime.now()).all()
+    # print('upcomingshows:::::::')
+    # print(artist_upcoming_shows)
+    
     data_list = []
     data_list_dictionary = {}
     past_shows_list = []
@@ -453,41 +460,35 @@ def show_artist(artist_id):
     upcoming_shows_data_dictionary = {}
     # print(artist_result.name)
 
-    artist_shows = artist_result.show
+    # artist_shows = artist_result.show
     past_show_count = 0
     upcoming_show_count = 0
 
-    for a_show in artist_shows:
-        if a_show.start_time > datetime.now():
-            # upcoming shows
-            upcoming_show_count += 1
-            # print("Upcoming Shows")
-            upcoming_shows_data_dictionary['artist_id'] = a_show.venue.id
-            upcoming_shows_data_dictionary['venue_name'] = a_show.venue.name
-            upcoming_shows_data_dictionary['venue_image_link'] = a_show.venue.image_link
-            upcoming_shows_data_dictionary['start_time'] = a_show.start_time.strftime(
+    for a_show in artist_upcoming_shows:
+        # upcoming shows
+        upcoming_show_count += 1
+        upcoming_shows_data_dictionary['artist_id'] = a_show.venue.id
+        upcoming_shows_data_dictionary['venue_name'] = a_show.venue.name
+        upcoming_shows_data_dictionary['venue_image_link'] = a_show.venue.image_link
+        upcoming_shows_data_dictionary['start_time'] = a_show.start_time.strftime(
                 "%m/%d/%Y, %H:%M:%S")
 
-            upcoming_shows_list.append(upcoming_shows_data_dictionary)
-            upcoming_shows_data_dictionary = {}
-            # print(a_show.start_time)
-            # print("venues")
-            # print(a_show.venue.image_link)
-        else:
-            # past shows
-            past_show_count += 1
-            print('past shows')
-            past_shows_data_dictionary['venue_id'] = a_show.venue.id
-            past_shows_data_dictionary['venue_name'] = a_show.venue.name
-            past_shows_data_dictionary['venue_image_link'] = a_show.venue.image_link
-            past_shows_data_dictionary['start_time'] = a_show.start_time.strftime(
+        upcoming_shows_list.append(upcoming_shows_data_dictionary)
+        upcoming_shows_data_dictionary = {}
+            
+    for a_show2 in artist_past_shows:
+        # past shows
+        past_show_count += 1
+        print('past shows')
+        past_shows_data_dictionary['venue_id'] = a_show2.venue.id
+        past_shows_data_dictionary['venue_name'] = a_show2.venue.name
+        past_shows_data_dictionary['venue_image_link'] = a_show2.venue.image_link
+        past_shows_data_dictionary['start_time'] = a_show2.start_time.strftime(
                 "%m/%d/%Y, %H:%M:%S")
 
-            past_shows_list.append(past_shows_data_dictionary)
-            past_shows_data_dictionary = {}
-            # print(a_show)
-            # print("Artists")
-            # print(a_show.artist)
+        past_shows_list.append(past_shows_data_dictionary)
+        past_shows_data_dictionary = {}
+        
     data_list_dictionary['id'] = artist_result.id
     data_list_dictionary['name'] = artist_result.name
     data_list_dictionary['genres'] = [artist_result.genre]
@@ -643,8 +644,10 @@ def edit_artist_submission(artist_id):
         queried_artist.seeking_description = form.seeking_description.data
 
         db.session.commit()
+        flash('Artist '+queried_artist.name+' edited successfully.')
     except:
         db.session.rollback()
+        flash('Artist '+queried_artist.name+' failed to edit.')
         print(sys.exc_info())
     finally:
         db.session.close()
