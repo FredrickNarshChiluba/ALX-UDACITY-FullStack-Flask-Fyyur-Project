@@ -1,6 +1,9 @@
 from datetime import datetime
+from email import message
+from operator import length_hint
+from re import RegexFlag
 from flask_wtf import Form
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField
+from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField,validators,IntegerField
 from wtforms.validators import DataRequired, AnyOf, URL
 
 class ShowForm(Form):
@@ -82,8 +85,8 @@ class VenueForm(Form):
     address = StringField(
         'address', validators=[DataRequired()]
     )
-    phone = StringField(
-        'phone'
+    phone = IntegerField(
+        'phone',validators=[DataRequired(),validators.Length(min=10,max=10),validators.Regexp(regex="/^\d+$/",message='This field requires only digits')]
     )
     image_link = StringField(
         'image_link'
@@ -191,10 +194,7 @@ class ArtistForm(Form):
             ('WY', 'WY'),
         ]
     )
-    phone = StringField(
-        # TODO implement validation logic for phone 
-        'phone'
-    )
+    phone = IntegerField('phone',validators=[DataRequired(),validators.NumberRange(min=10,max=10),validators.Regexp(regex="/^\d+$/",message='This field requires only digits')])
     image_link = StringField(
         'image_link'
     )

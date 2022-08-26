@@ -161,6 +161,13 @@ def show_venue(venue_id):
     # shows the venue page with the given venue_id
     # TODO: replace with real venue data from the venues table, using venue_id
     venue_result = Venue.query.filter(Venue.id == venue_id).first()
+    venue_past_shows=db.session.query(Show).join(Venue).filter(Show.venue_id==venue_id).filter(Show.start_time<datetime.now()).all()
+    print('pastshows:::::::')
+    print(venue_past_shows)
+    venue_upcoming_shows=db.session.query(Show).join(Venue).filter(Show.venue_id==venue_id).filter(Show.start_time>datetime.now()).all()
+    print('upcomingshows:::::::')
+    print(venue_upcoming_shows)
+
     data_list = []
     data_list_dictionary = {}
     past_shows_list = []
@@ -169,41 +176,33 @@ def show_venue(venue_id):
     upcoming_shows_data_dictionary = {}
     print(venue_result.name)
 
-    venue_shows = venue_result.show
+    # venue_shows = venue_result.show
     past_show_count = 0
     upcoming_show_count = 0
-
-    for a_show in venue_shows:
-        if a_show.start_time > datetime.now():
-            # upcoming shows
-            upcoming_show_count += 1
-            print("Upcoming Shows")
-            upcoming_shows_data_dictionary['artist_id'] = a_show.artist.id
-            upcoming_shows_data_dictionary['artist_name'] = a_show.artist.name
-            upcoming_shows_data_dictionary['artist_image_link'] = a_show.artist.image_link
-            upcoming_shows_data_dictionary['start_time'] = a_show.start_time.strftime(
+    
+    for a_show in venue_upcoming_shows:
+        upcoming_show_count+=1
+        upcoming_shows_data_dictionary['artist_id'] = a_show.artist.id
+        upcoming_shows_data_dictionary['artist_name'] = a_show.artist.name
+        upcoming_shows_data_dictionary['artist_image_link'] = a_show.artist.image_link
+        upcoming_shows_data_dictionary['start_time'] = a_show.start_time.strftime(
+                "%m/%d/%Y, %H:%M:%S")
+        
+        upcoming_shows_list.append(upcoming_shows_data_dictionary)
+        upcoming_shows_data_dictionary = {}
+    # print(upcoming_shows_list)
+    
+    for a_show1 in venue_past_shows:
+        past_show_count += 1
+        past_shows_data_dictionary['artist_id'] = a_show1.artist.id
+        past_shows_data_dictionary['artist_name'] = a_show1.artist.name
+        past_shows_data_dictionary['artist_image_link'] = a_show1.artist.image_link
+        past_shows_data_dictionary['start_time'] = a_show1.start_time.strftime(
                 "%m/%d/%Y, %H:%M:%S")
 
-            upcoming_shows_list.append(upcoming_shows_data_dictionary)
-            upcoming_shows_data_dictionary = {}
-            # print(a_show.start_time)
-            # print("Artists")
-            # print(a_show.artist.image_link)
-        else:
-            # past shows
-            past_show_count += 1
-            print('past shows')
-            past_shows_data_dictionary['artist_id'] = a_show.artist.id
-            past_shows_data_dictionary['artist_name'] = a_show.artist.name
-            past_shows_data_dictionary['artist_image_link'] = a_show.artist.image_link
-            past_shows_data_dictionary['start_time'] = a_show.start_time.strftime(
-                "%m/%d/%Y, %H:%M:%S")
+        past_shows_list.append(past_shows_data_dictionary)
+        past_shows_data_dictionary = {}
 
-            past_shows_list.append(past_shows_data_dictionary)
-            past_shows_data_dictionary = {}
-            # print(a_show)
-            # print("Artists")
-            # print(a_show.artist)
     data_list_dictionary['id'] = venue_result.id
     data_list_dictionary['name'] = venue_result.name
     data_list_dictionary['genres'] = [venue_result.genre]
@@ -222,8 +221,7 @@ def show_venue(venue_id):
     data_list_dictionary['upcoming_shows_count'] = upcoming_show_count
 
     data_list.append(data_list_dictionary)
-    # print('Data to show:::')
-    # print(data_list)
+
 
     # data1 = {
     #     "id": 1,
