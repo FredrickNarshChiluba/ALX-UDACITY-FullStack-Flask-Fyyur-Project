@@ -25,15 +25,16 @@ from markupsafe import Markup
 app = Flask(__name__)
 moment = Moment(app)
 app.config.from_object('config')
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+# db = SQLAlchemy(app)
 
 # TODO: connect to a local postgresql database
 
 #----------------------------------------------------------------------------#
 # Models.
 #----------------------------------------------------------------------------#
-from models import*
+from models import *
+migrate = Migrate(app, db)
+db.init_app(app)
 #----------------------------------------------------------------------------#
 # Filters.
 #----------------------------------------------------------------------------#

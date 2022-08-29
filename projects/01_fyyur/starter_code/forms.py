@@ -2,9 +2,10 @@ from datetime import datetime
 from email import message
 from operator import length_hint
 from re import RegexFlag
-from flask_wtf import Form
+from wtforms import Form
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField,validators,IntegerField
 from wtforms.validators import DataRequired, AnyOf, URL
+
 
 class ShowForm(Form):
     artist_id = StringField(
@@ -194,7 +195,7 @@ class ArtistForm(Form):
             ('WY', 'WY'),
         ]
     )
-    phone = IntegerField('phone',validators=[DataRequired(),validators.NumberRange(min=10,max=10),validators.Regexp(regex="/^\d+$/",message='This field requires only digits')])
+    phone = IntegerField('phone',validators=[DataRequired(),validators.Length(min=10,max=10),validators.Regexp(regex="/^\d+$/",message='This field requires only digits')])
     image_link = StringField(
         'image_link'
     )
